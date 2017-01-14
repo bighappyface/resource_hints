@@ -1,0 +1,119 @@
+<?php
+/**
+ * @file
+ * Modules hooks for the resource hints module.
+ */
+
+define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY', '0');
+define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS', '1');
+define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', '2');
+
+/**
+ * Implements hook_menu().
+ */
+function resource_hints_menu() {
+  $items['admin/config/development/resources-hints'] = array(
+    'title' => 'Resource Hints',
+    'description' => 'Configure settings for resources hints.',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer resource hints'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('resource_hints_dns_prefetch_admin'),
+    'file' => 'resource_hints.dns_prefetch.admin.inc',
+  );
+
+  $items['admin/config/development/resources-hints/dns-prefetch'] = array(
+    'title' => 'DNS Prefetch',
+    'description' => 'Configure settings for DNS prefetch resources hints.',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/config/development/resources-hints/preconnect'] = array(
+    'title' => 'Preconnect',
+    'description' => 'Configure settings for preconnect resources hints.',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer resource hints'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('resource_hints_preconnect_admin'),
+    'file' => 'resource_hints.preconnect.admin.inc',
+  );
+
+  $items['admin/config/development/resources-hints/prefetch'] = array(
+    'title' => 'Prefetch',
+    'description' => 'Configure settings for prefetch resources hints.',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer resource hints'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('resource_hints_prefetch_admin'),
+    'file' => 'resource_hints.prefetch.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function resource_hints_permission() {
+  return array(
+    'administer resource hints' => array(
+      'title' => t('Administer Resource Hints'),
+      'description' => t('Configure settings for resource hints'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function resource_hints_init() {
+
+  $control = variable_get('resource_hints_dns_prefetch_protocol_control', RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY);
+
+  if ($control == RESOURCE_HINTS_DNS_PREFETCH_DISABLED) {
+    drupal_add_html_head(
+      array(
+        '#tag' => 'meta',
+        'http-equiv' => 'X-UA-Compatible',
+        '#attributes' => array(
+          'http-equiv' => 'x-dns-prefetch-control',
+          'content' => 'off',
+        ),
+      ),
+      __FUNCTION__
+    );
+
+    return;
+  }
+  else {
+    drupal_add_html_head(
+      array(
+        '#tag' => 'meta',
+        'http-equiv' => 'X-UA-Compatible',
+        '#attributes' => array(
+          'http-equiv' => 'x-dns-prefetch-control',
+          'content' => 'on',
+        ),
+      ),
+      __FUNCTION__
+    );
+  }
+
+  $hint_types = array(
+    'dns-prefetch' => 'resource_hints_dns_prefetch_domains',
+    'preconnect' => 'resource_hints_preconnect_domains',
+    'prefetch' => 'resource_hints_prefetch_domains',
+  );
+
+  foreach ($hint_types as $rel => $variable_name) {
+    foreach (explode(PHP_EOL, variable_get($variable_name, '')) as $value) {
+      drupal_add_html_head_link(
+        array(
+          'rel' => $rel,
+          'href' => drupal_strip_dangerous_protocols(trim($value)),
+        ),
+        FALSE
+      );
+    }
+  }
+}

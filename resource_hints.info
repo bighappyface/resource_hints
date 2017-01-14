@@ -1,0 +1,6 @@
+name = "Resource Hints"
+description = "Configure resource hints - https://www.w3.org/TR/resource-hints/"
+package = "Performance"
+core = "7.x"
+
+files[] = resource_hints.test

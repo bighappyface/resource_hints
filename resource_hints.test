@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Tests for resource hints module.
+ */
+
+/**
+ * Test case.
+ */
+class ResourceHintsWebTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Resources Hints Web Test Case',
+      'description' => 'Test resource hints are output based on configuration.',
+      'group' => 'Resource Hints',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp('resource_hints');
+
+    $admin_user = $this->drupalCreateUser(array(
+      'access administration pages',
+      'administer nodes',
+      'administer site configuration',
+      'administer resource hints',
+    ));
+
+    $this->drupalLogin($admin_user);
+  }
+
+  /**
+   * Test the DNS prefetch resource hints.
+   */
+  public function testDnsPrefetchLinks() {
+    $edit = array();
+    $edit['resource_hints_dns_prefetch_protocol_control'] = 0;
+    $edit['resource_hints_dns_prefetch_domains'] = '//drupal.org';
+    $output = $this->drupalPost('admin/config/development/resources-hints/dns-prefetch', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="dns-prefetch" href="//drupal.org" />');
+  }
+
+  /**
+   * Test the preconnect resource hints.
+   */
+  public function testPreconnectLinks() {
+    $edit = array();
+    $edit['resource_hints_preconnect_domains'] = '//drupal.org';
+    $output = $this->drupalPost('admin/config/development/resources-hints/preconnect', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="preconnect" href="//drupal.org" />');
+  }
+
+  /**
+   * Test the prefetch resource hints.
+   */
+  public function testPrefetchLinks() {
+    $edit = array();
+    $edit['resource_hints_prefetch_domains'] = '//drupal.org';
+    $output = $this->drupalPost('admin/config/development/resources-hints/prefetch', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="prefetch" href="//drupal.org" />');
+  }
+
+}
