@@ -1,3 +1,5 @@
-resource_hints.settings:
+resource_hints.settings.dns_prefetch:
   title: Resource Hints
   route_name: resource_hints.settings
+  description: 'Configure settings for resources hints.'
+  parent: system.admin_config_development

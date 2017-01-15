@@ -1,9 +1,0 @@
-dns_prefetch_output: 0
-dns_prefetch_protocol_control: 1
-dns_prefetch_resources: 2
-preconnect_output: 2
-preconnect_resources: ''
-prefetch_output: 2
-prefetch_resources: ''
-prerender_output: 2
-prerender_resources: ''
