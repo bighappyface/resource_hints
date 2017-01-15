@@ -7,6 +7,8 @@
 define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY', '0');
 define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS', '1');
 define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', '2');
+define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', '3');
+define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', '4');
 
 /**
  * Implements hook_menu().
@@ -46,6 +48,16 @@ function resource_hints_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('resource_hints_prefetch_admin'),
     'file' => 'resource_hints.prefetch.admin.inc',
+  );
+
+  $items['admin/config/development/resources-hints/prerender'] = array(
+    'title' => 'Prerender',
+    'description' => 'Configure settings for prerender resources hints.',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer resource hints'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('resource_hints_prerender_admin'),
+    'file' => 'resource_hints.prerender.admin.inc',
   );
 
   return $items;
@@ -100,20 +112,29 @@ function resource_hints_init() {
   }
 
   $hint_types = array(
-    'dns-prefetch' => 'resource_hints_dns_prefetch_domains',
-    'preconnect' => 'resource_hints_preconnect_domains',
-    'prefetch' => 'resource_hints_prefetch_domains',
+    'dns-prefetch' => 'resource_hints_dns_prefetch',
+    'preconnect' => 'resource_hints_preconnect',
+    'prefetch' => 'resource_hints_prefetch',
+    'prerender' => 'resource_hints_prerender',
   );
 
-  foreach ($hint_types as $rel => $variable_name) {
-    foreach (explode(PHP_EOL, variable_get($variable_name, '')) as $value) {
-      drupal_add_html_head_link(
-        array(
-          'rel' => $rel,
-          'href' => drupal_strip_dangerous_protocols(trim($value)),
-        ),
-        FALSE
-      );
+  foreach ($hint_types as $rel => $variable_prefix) {
+    foreach (explode(PHP_EOL, variable_get("{$variable_prefix}_resources", '')) as $value) {
+      $value = drupal_strip_dangerous_protocols(trim($value));
+      if ($value) {
+        $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
+        if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+          drupal_add_http_header('Link', "<{$value}>; rel={$rel}", TRUE);
+        } else {
+          drupal_add_html_head_link(
+            array(
+              'rel' => $rel,
+              'href' => $value,
+            ),
+            FALSE
+          );
+        }
+      }
     }
   }
 }

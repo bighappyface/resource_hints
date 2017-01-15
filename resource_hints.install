@@ -8,6 +8,18 @@
  * Implements hook_uninstall().
  */
 function resource_hints_uninstall() {
-  variable_del('resource_hints_dns_prefetch_domains');
-  variable_del('resource_hints_dns_prefetch_protocol_control');
+  $vars = array(
+    'resource_hints_dns_prefetch_output',
+    'resource_hints_dns_prefetch_protocol_control',
+    'resource_hints_dns_prefetch_resources',
+    'resource_hints_preconnect_output',
+    'resource_hints_preconnect_resources',
+    'resource_hints_prefetch_output',
+    'resource_hints_prefetch_resources',
+    'resource_hints_prerender_output',
+    'resource_hints_prerender_resources',
+  );
+  foreach ($vars as $var) {
+    variable_del($var);
+  }
 }
