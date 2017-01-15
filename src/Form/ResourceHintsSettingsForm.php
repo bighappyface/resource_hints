@@ -10,11 +10,11 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class ResourceHintsSettingsForm extends ConfigFormBase {
 
-  const OUTPUT_LINK_ELEMENT = 0;
-  const OUTPUT_LINK_HEADER = 1;
-  const DNS_PREFETCH_HTTP_ONLY = 2;
-  const DNS_PREFETCH_HTTP_AND_HTTPS = 3;
-  const DNS_PREFETCH_DISABLED = 4;
+  const OUTPUT_LINK_HEADER = '0';
+  const OUTPUT_LINK_ELEMENT = '1';
+  const DNS_PREFETCH_HTTP_ONLY = '2';
+  const DNS_PREFETCH_HTTP_AND_HTTPS = '3';
+  const DNS_PREFETCH_DISABLED = '4';
 
   /**
    * {@inheritdoc}
@@ -39,8 +39,9 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
     $config = $this->config('resource_hints.settings');
 
     $form['dns_prefetch'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('DNS Prefetch'),
+      '#open' => TRUE,
     ];
 
     $form['dns_prefetch']['dns_prefetch_output'] = [
@@ -74,8 +75,9 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
     ];
 
     $form['preconnect'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('Preconnect'),
+      '#open' => TRUE,
     ];
 
     $form['preconnect']['preconnect_output'] = [
@@ -97,8 +99,9 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
     ];
 
     $form['prefetch'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('Prefetch'),
+      '#open' => TRUE,
     ];
 
     $form['prefetch']['prefetch_output'] = [
@@ -120,8 +123,9 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
     ];
 
     $form['prerender'] = [
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => $this->t('Prerender'),
+      '#open' => TRUE,
     ];
 
     $form['prerender']['prerender_output'] = [
