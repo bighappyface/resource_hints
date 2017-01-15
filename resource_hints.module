@@ -1,14 +1,15 @@
 <?php
+
 /**
  * @file
  * Modules hooks for the resource hints module.
  */
 
-define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY', '0');
-define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS', '1');
-define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', '2');
-define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', '3');
-define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', '4');
+define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', '0');
+define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', '1');
+define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY', '2');
+define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS', '3');
+define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', '4');
 
 /**
  * Implements hook_menu().
@@ -21,43 +22,7 @@ function resource_hints_menu() {
     'access arguments' => array('administer resource hints'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('resource_hints_dns_prefetch_admin'),
-    'file' => 'resource_hints.dns_prefetch.admin.inc',
-  );
-
-  $items['admin/config/development/resources-hints/dns-prefetch'] = array(
-    'title' => 'DNS Prefetch',
-    'description' => 'Configure settings for DNS prefetch resources hints.',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  $items['admin/config/development/resources-hints/preconnect'] = array(
-    'title' => 'Preconnect',
-    'description' => 'Configure settings for preconnect resources hints.',
-    'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('administer resource hints'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('resource_hints_preconnect_admin'),
-    'file' => 'resource_hints.preconnect.admin.inc',
-  );
-
-  $items['admin/config/development/resources-hints/prefetch'] = array(
-    'title' => 'Prefetch',
-    'description' => 'Configure settings for prefetch resources hints.',
-    'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('administer resource hints'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('resource_hints_prefetch_admin'),
-    'file' => 'resource_hints.prefetch.admin.inc',
-  );
-
-  $items['admin/config/development/resources-hints/prerender'] = array(
-    'title' => 'Prerender',
-    'description' => 'Configure settings for prerender resources hints.',
-    'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('administer resource hints'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('resource_hints_prerender_admin'),
-    'file' => 'resource_hints.prerender.admin.inc',
+    'file' => 'resource_hints.admin.inc',
   );
 
   return $items;
@@ -125,7 +90,8 @@ function resource_hints_init() {
         $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
         if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
           drupal_add_http_header('Link', "<{$value}>; rel={$rel}", TRUE);
-        } else {
+        }
+        else {
           drupal_add_html_head_link(
             array(
               'rel' => $rel,
