@@ -10,11 +10,10 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class ResourceHintsConfigForm extends ConfigFormBase {
 
-  const OUTPUT_LINK_HEADER = '0';
-  const OUTPUT_LINK_ELEMENT = '1';
-  const DNS_PREFETCH_HTTP_ONLY = '2';
-  const DNS_PREFETCH_HTTP_AND_HTTPS = '3';
-  const DNS_PREFETCH_DISABLED = '4';
+  const OUTPUT_LINK_HEADER = 0;
+  const OUTPUT_LINK_ELEMENT = 1;
+  const DNS_PREFETCH_ENABLED = 'on';
+  const DNS_PREFETCH_DISABLED = 'off';
 
   /**
    * {@inheritdoc}
@@ -62,15 +61,14 @@ class ResourceHintsConfigForm extends ConfigFormBase {
       '#description' => t('The DNS resources you wish to be prefetched. Enter one resource per line.'),
     ];
 
-    $form['dns_prefetch']['dns_prefetch_protocol_control'] = [
+    $form['dns_prefetch']['dns_prefetch_control'] = [
       '#type' => 'select',
-      '#title' => t('DNS Prefetch Protocol Control'),
+      '#title' => t('DNS Prefetch Control'),
       '#options' => [
-        self::DNS_PREFETCH_HTTP_ONLY => t('HTTP Only'),
-        self::DNS_PREFETCH_HTTP_AND_HTTPS => t('HTTP and HTTPS'),
+        self::DNS_PREFETCH_ENABLED => t('Enabled'),
         self::DNS_PREFETCH_DISABLED => t('Disabled'),
       ],
-      '#default_value' => $config->get('dns_prefetch_protocol_control'),
+      '#default_value' => $config->get('dns_prefetch_control'),
       '#description' => t('By default browsers will not use DNS prefetching when a page is served via HTTPS, you must explicitly enable prefetching for HTTPS. Disabling prefetching will prevent browsers using prefetching and any inline attempts to enable it will be ignored.'),
     ];
 
@@ -160,7 +158,7 @@ class ResourceHintsConfigForm extends ConfigFormBase {
     $config = \Drupal::service('config.factory')->getEditable('resource_hints.config');
     $config->set('dns_prefetch_resources', $dns_prefetch_resources)
       ->set('dns_prefetch_output', $form_state->getValue('dns_prefetch_output'))
-      ->set('dns_prefetch_protocol_control', $form_state->getValue('dns_prefetch_protocol_control'))
+      ->set('dns_prefetch_control', $form_state->getValue('dns_prefetch_control'))
       ->set('preconnect_resources', $preconnect_resources)
       ->set('preconnect_output', $form_state->getValue('preconnect_output'))
       ->set('prefetch_resources', $prefetch_resources)

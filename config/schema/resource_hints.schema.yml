@@ -3,7 +3,7 @@ resource_hints.config:
   label: 'Resource Hints config'
   mapping:
     dns_prefetch_output:
-      type: string
+      type: integer
       label: 'DNS Prefetch Output Type'
     dns_prefetch_resources:
       type: sequence
@@ -11,11 +11,11 @@ resource_hints.config:
       sequence:
         type: string
         label: 'Resource'
-    dns_prefetch_protocol_control:
+    dns_prefetch_control:
       type: string
       label: 'DNS Protocol Control'
     preconnect_output:
-      type: string
+      type: integer
       label: 'Preconnect Output Type'
     preconnect_resources:
       type: sequence
@@ -24,7 +24,7 @@ resource_hints.config:
         type: string
         label: 'Resource'
     prefetch_output:
-      type: string
+      type: integer
       label: 'Prefetch Output Type'
     prefetch_resources:
       type: sequence
@@ -33,7 +33,7 @@ resource_hints.config:
         type: string
         label: 'Resource'
     prerender_output:
-      type: string
+      type: integer
       label: 'Prerender Output Type'
     prerender_resources:
       type: sequence
