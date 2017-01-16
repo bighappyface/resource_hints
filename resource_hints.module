@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Module hooks for the resource hints module.
+ */
+
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\resource_hints\Form\ResourceHintsConfigForm;
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function resource_hints_page_attachments_alter(array &$attachments) {
+  $config = \Drupal::config('resource_hints.config');
+
+  $hint_types = array(
+    'dns-prefetch' => 'dns_prefetch',
+    'preconnect' => 'preconnect',
+    'prefetch' => 'prefetch',
+    'prerender' => 'prerender',
+  );
+
+  $headers = [];
+  $elements = [];
+
+  foreach ($hint_types as $rel => $setting) {
+    $resources = $config->get("{$setting}_resources");
+    $output = $config->get("{$setting}_output");
+    foreach ($resources as $value) {
+      $value = UrlHelper::stripDangerousProtocols(trim($value));
+      if ($value) {
+        if ($output === ResourceHintsConfigForm::OUTPUT_LINK_HEADER) {
+          $headers[] = ['Link', "<{$value}>; rel=\"{$rel}\""];
+        }
+        else {
+          $elements[] = [['rel' => $rel, 'href' => $value]];
+        }
+      }
+    }
+  }
+
+  if ($headers) {
+    foreach($headers as $header) {
+      $attachments['#attached']['http_header'][] = $header;
+    }
+  }
+
+  if ($elements) {
+    $elements = array_merge($elements, $attachments['#attached']['html_head_link']);
+    $attachments['#attached']['html_head_link'] = $elements;
+  }
+
+}

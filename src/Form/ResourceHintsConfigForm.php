@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Configure resource hints for this site.
  */
-class ResourceHintsSettingsForm extends ConfigFormBase {
+class ResourceHintsConfigForm extends ConfigFormBase {
 
   const OUTPUT_LINK_HEADER = '0';
   const OUTPUT_LINK_ELEMENT = '1';
@@ -20,7 +20,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'resource_hints_admin_settings';
+    return 'resource_hints_admin_config';
   }
 
   /**
@@ -28,7 +28,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'resource_hints.settings',
+      'resource_hints.config',
     ];
   }
 
@@ -36,7 +36,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('resource_hints.settings');
+    $config = $this->config('resource_hints.config');
 
     $form['dns_prefetch'] = [
       '#type' => 'details',
@@ -57,7 +57,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
 
     $form['dns_prefetch']['dns_prefetch_resources'] = [
       '#type' => 'textarea',
-      '#default_value' => $config->get('dns_prefetch_resources'),
+      '#default_value' => implode(PHP_EOL, $config->get('dns_prefetch_resources')),
       '#title' => $this->t('Resources'),
       '#description' => t('The DNS resources you wish to be prefetched. Enter one resource per line.'),
     ];
@@ -93,7 +93,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
 
     $form['preconnect']['preconnect_resources'] = [
       '#type' => 'textarea',
-      '#default_value' => $config->get('preconnect_resources'),
+      '#default_value' => implode(PHP_EOL, $config->get('preconnect_resources')),
       '#title' => $this->t('Resources'),
       '#description' => t('The resources you wish to be preconnected. Enter one resource per line.'),
     ];
@@ -117,7 +117,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
 
     $form['prefetch']['prefetch_resources'] = [
       '#type' => 'textarea',
-      '#default_value' => $config->get('prefetch_resources'),
+      '#default_value' => implode(PHP_EOL, $config->get('prefetch_resources')),
       '#title' => $this->t('Resources'),
       '#description' => t('The resources you wish to be prefetched. Enter one resource per line.'),
     ];
@@ -141,7 +141,7 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
 
     $form['prerender']['prerender_resources'] = [
       '#type' => 'textarea',
-      '#default_value' => $config->get('prerender_resources'),
+      '#default_value' => implode(PHP_EOL, $config->get('prerender_resources')),
       '#title' => $this->t('Resources'),
       '#description' => t('The resources you wish to be prerendered. Enter one resource per line.'),
     ];
@@ -153,18 +153,21 @@ class ResourceHintsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::service('config.factory')->getEditable('resource_hints.settings');
-    $config->set('dns_prefetch_resources', $form_state->getValue('dns_prefetch_resources'))
+    $dns_prefetch_resources = explode(PHP_EOL, $form_state->getValue('dns_prefetch_resources'));
+    $preconnect_resources = explode(PHP_EOL, $form_state->getValue('preconnect_resources'));
+    $prefetch_resources = explode(PHP_EOL, $form_state->getValue('prefetch_resources'));
+    $prerender_resources = explode(PHP_EOL, $form_state->getValue('prerender_resources'));
+    $config = \Drupal::service('config.factory')->getEditable('resource_hints.config');
+    $config->set('dns_prefetch_resources', $dns_prefetch_resources)
       ->set('dns_prefetch_output', $form_state->getValue('dns_prefetch_output'))
       ->set('dns_prefetch_protocol_control', $form_state->getValue('dns_prefetch_protocol_control'))
-      ->set('preconnect_resources', $form_state->getValue('preconnect_resources'))
+      ->set('preconnect_resources', $preconnect_resources)
       ->set('preconnect_output', $form_state->getValue('preconnect_output'))
-      ->set('prefetch_resources', $form_state->getValue('prefetch_resources'))
+      ->set('prefetch_resources', $prefetch_resources)
       ->set('prefetch_output', $form_state->getValue('prefetch_output'))
-      ->set('prerender_resources', $form_state->getValue('prerender_resources'))
+      ->set('prerender_resources', $prerender_resources)
       ->set('prerender_output', $form_state->getValue('prerender_output'))
       ->save();
-
     parent::submitForm($form, $form_state);
   }
 
