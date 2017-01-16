@@ -11,7 +11,7 @@
 function resource_hints_uninstall() {
   $vars = array(
     'resource_hints_dns_prefetch_output',
-    'resource_hints_dns_prefetch_protocol_control',
+    'resource_hints_dns_prefetch_control',
     'resource_hints_dns_prefetch_resources',
     'resource_hints_preconnect_output',
     'resource_hints_preconnect_resources',

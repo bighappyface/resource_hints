@@ -23,7 +23,7 @@ function resource_hints_dns_prefetch_admin() {
       RESOURCE_HINTS_OUTPUT_LINK_HEADER => t('Link Header'),
       RESOURCE_HINTS_OUTPUT_LINK_ELEMENT => t('Link Element'),
     ),
-    '#default_value' => variable_get('resource_hints_dns_prefetch_output', RESOURCE_HINTS_OUTPUT_LINK_ELEMENT),
+    '#default_value' => variable_get('resource_hints_dns_prefetch_output', RESOURCE_HINTS_OUTPUT_LINK_HEADER),
     '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
   );
 
@@ -34,15 +34,14 @@ function resource_hints_dns_prefetch_admin() {
     '#default_value' => variable_get('resource_hints_dns_prefetch_resources', ''),
   );
 
-  $form['dns_prefetch']['resource_hints_dns_prefetch_protocol_control'] = array(
+  $form['dns_prefetch']['resource_hints_dns_prefetch_control'] = array(
     '#type' => 'select',
-    '#title' => t('DNS prefetch protocol control'),
+    '#title' => t('DNS prefetch control'),
     '#options' => array(
-      RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY => t('HTTP Only'),
-      RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS => t('HTTP and HTTPS'),
+      RESOURCE_HINTS_DNS_PREFETCH_ENABLED => t('Enabled'),
       RESOURCE_HINTS_DNS_PREFETCH_DISABLED => t('Disabled'),
     ),
-    '#default_value' => variable_get('resource_hints_dns_prefetch_protocol_control', RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY),
+    '#default_value' => variable_get('resource_hints_dns_prefetch_control', RESOURCE_HINTS_DNS_PREFETCH_ENABLED),
     '#description' => t('By default browsers will not use DNS prefetching when a page is served via HTTPS, you must explicitly enable prefetching for HTTPS. Disabling prefetching will prevent browsers using prefetching and any inline attempts to enable it will be ignored.'),
   );
 
@@ -59,7 +58,7 @@ function resource_hints_dns_prefetch_admin() {
       RESOURCE_HINTS_OUTPUT_LINK_HEADER => t('Link Header'),
       RESOURCE_HINTS_OUTPUT_LINK_ELEMENT => t('Link Element'),
     ),
-    '#default_value' => variable_get('resource_hints_preconnect_output', RESOURCE_HINTS_OUTPUT_LINK_ELEMENT),
+    '#default_value' => variable_get('resource_hints_preconnect_output', RESOURCE_HINTS_OUTPUT_LINK_HEADER),
     '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
   );
 
@@ -83,7 +82,7 @@ function resource_hints_dns_prefetch_admin() {
       RESOURCE_HINTS_OUTPUT_LINK_HEADER => t('Link Header'),
       RESOURCE_HINTS_OUTPUT_LINK_ELEMENT => t('Link Element'),
     ),
-    '#default_value' => variable_get('resource_hints_prefetch_output', RESOURCE_HINTS_OUTPUT_LINK_ELEMENT),
+    '#default_value' => variable_get('resource_hints_prefetch_output', RESOURCE_HINTS_OUTPUT_LINK_HEADER),
     '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
   );
 
@@ -107,7 +106,7 @@ function resource_hints_dns_prefetch_admin() {
       RESOURCE_HINTS_OUTPUT_LINK_HEADER => t('Link Header'),
       RESOURCE_HINTS_OUTPUT_LINK_ELEMENT => t('Link Element'),
     ),
-    '#default_value' => variable_get('resource_hints_prerender_output', RESOURCE_HINTS_OUTPUT_LINK_ELEMENT),
+    '#default_value' => variable_get('resource_hints_prerender_output', RESOURCE_HINTS_OUTPUT_LINK_HEADER),
     '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
   );
 

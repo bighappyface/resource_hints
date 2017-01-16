@@ -5,11 +5,10 @@
  * Modules hooks for the resource hints module.
  */
 
-define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', '0');
-define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', '1');
-define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY', '2');
-define('RESOURCE_HINTS_DNS_PREFETCH_HTTP_AND_HTTPS', '3');
-define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', '4');
+define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', 'header');
+define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', 'element');
+define('RESOURCE_HINTS_DNS_PREFETCH_ENABLED', 'on');
+define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', 'off');
 
 /**
  * Implements hook_menu().
@@ -45,39 +44,46 @@ function resource_hints_permission() {
  */
 function resource_hints_init() {
 
-  $control = variable_get('resource_hints_dns_prefetch_protocol_control', RESOURCE_HINTS_DNS_PREFETCH_HTTP_ONLY);
+  $dns_prefetch_control = variable_get('resource_hints_dns_prefetch_control', RESOURCE_HINTS_DNS_PREFETCH_ENABLED);
+  $dns_prefetch_output = variable_get("resource_hints_dns_prefetch_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
 
-  if ($control == RESOURCE_HINTS_DNS_PREFETCH_DISABLED) {
-    drupal_add_html_head(
-      array(
-        '#tag' => 'meta',
-        'http-equiv' => 'X-UA-Compatible',
-        '#attributes' => array(
-          'http-equiv' => 'x-dns-prefetch-control',
-          'content' => 'off',
-        ),
-      ),
-      __FUNCTION__
-    );
-
-    return;
+  if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+    drupal_add_http_header('X-DNS-Prefetch-Control', $dns_prefetch_control);
   }
   else {
     drupal_add_html_head(
       array(
         '#tag' => 'meta',
-        'http-equiv' => 'X-UA-Compatible',
         '#attributes' => array(
           'http-equiv' => 'x-dns-prefetch-control',
-          'content' => 'on',
+          'content' => $dns_prefetch_control,
         ),
       ),
       __FUNCTION__
     );
   }
 
+  if ($dns_prefetch_control === RESOURCE_HINTS_DNS_PREFETCH_ENABLED) {
+    foreach (explode(PHP_EOL, variable_get('resource_hints_dns_prefetch_resources', '')) as $value) {
+      $value = drupal_strip_dangerous_protocols(trim($value));
+      if ($value) {
+        if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+          drupal_add_http_header('Link', "<{$value}>; rel=\"dns-prefetch\"", TRUE);
+        }
+        else {
+          drupal_add_html_head_link(
+            array(
+              'rel' => 'dns-prefetch',
+              'href' => $value,
+            ),
+            FALSE
+          );
+        }
+      }
+    }
+  }
+
   $hint_types = array(
-    'dns-prefetch' => 'resource_hints_dns_prefetch',
     'preconnect' => 'resource_hints_preconnect',
     'prefetch' => 'resource_hints_prefetch',
     'prerender' => 'resource_hints_prerender',
@@ -89,7 +95,7 @@ function resource_hints_init() {
       if ($value) {
         $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
         if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
-          drupal_add_http_header('Link', "<{$value}>; rel={$rel}", TRUE);
+          drupal_add_http_header('Link', "<{$value}>; rel=\"{$rel}\"", TRUE);
         }
         else {
           drupal_add_html_head_link(

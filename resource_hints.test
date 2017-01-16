@@ -44,41 +44,60 @@ class ResourceHintsWebTestCase extends DrupalWebTestCase {
   public function testResourceHints() {
     $edit = array();
 
-    // DNS Prefetch Link element.
-    $edit['resource_hints_dns_prefetch_resources'] = '//drupal.org';
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertRaw('<link rel="dns-prefetch" href="//drupal.org" />');
     // DNS Prefetch Link header.
-    $edit['resource_hints_dns_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_HEADER;
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//drupal.org>; rel=dns-prefetch'));
+    $edit['resource_hints_dns_prefetch_resources'] = '//dns-prefetch.com';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//dns-prefetch.com>; rel="dns-prefetch"'));
+    $this->assertTrue(strstr($this->drupalGetHeader('X-DNS-Prefetch-Control'), RESOURCE_HINTS_DNS_PREFETCH_ENABLED));
 
-    // Preconnect Link element.
-    $edit['resource_hints_preconnect_resources'] = '//drupal.org';
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertRaw('<link rel="preconnect" href="//drupal.org" />');
+    // DNS Prefetch Link element.
+    $edit['resource_hints_dns_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="dns-prefetch" href="//dns-prefetch.com" />');
+    $this->assertRaw('<meta http-equiv="x-dns-prefetch-control" content="on" />');
+
+    // DNS Prefetch Control Off Header.
+    $edit['resource_hints_dns_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_HEADER;
+    $edit['resource_hints_dns_prefetch_control'] = RESOURCE_HINTS_DNS_PREFETCH_DISABLED;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertFalse(strstr($this->drupalGetHeader('Link'), '<//dns-prefetch.com>; rel=dns-prefetch'));
+    $this->assertTrue(strstr($this->drupalGetHeader('X-DNS-Prefetch-Control'), 'off'));
+
+    // DNS Prefetch Control Off Element.
+    $edit['resource_hints_dns_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertNoRaw('<link rel="dns-prefetch" href="//dns-prefetch.com" />');
+    $this->assertRaw('<meta http-equiv="x-dns-prefetch-control" content="off" />');
+
     // Preconnect Link header.
-    $edit['resource_hints_preconnect_output'] = RESOURCE_HINTS_OUTPUT_LINK_HEADER;
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//drupal.org>; rel=preconnect'));
+    $edit['resource_hints_preconnect_resources'] = '//preconnect.com';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//preconnect.com>; rel="preconnect"'));
+
+	  // Preconnect Link element.
+    $edit['resource_hints_preconnect_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="preconnect" href="//preconnect.com" />');
+
+    // Prefetch Link header.
+    $edit['resource_hints_prefetch_resources'] = '//prefetch.com';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//prefetch.com>; rel="prefetch"'));
 
     // Prefetch Link element.
-    $edit['resource_hints_prefetch_resources'] = '//drupal.org';
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertRaw('<link rel="prefetch" href="//drupal.org" />');
-    // Prefetch Link header.
-    $edit['resource_hints_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_HEADER;
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//drupal.org>; rel=prefetch'));
+    $edit['resource_hints_prefetch_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="prefetch" href="//prefetch.com" />');
+
+    // Prerender Link header.
+    $edit['resource_hints_prerender_resources'] = '//prerender.com';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//prerender.com>; rel="prerender"'));
 
     // Prerender Link element.
-    $edit['resource_hints_prerender_resources'] = '//drupal.org';
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertRaw('<link rel="prerender" href="//drupal.org" />');
-    // Prerender Link header.
-    $edit['resource_hints_prerender_output'] = RESOURCE_HINTS_OUTPUT_LINK_HEADER;
-    $output = $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
-    $this->assertTrue(strstr($this->drupalGetHeader('Link'), '<//drupal.org>; rel=prerender'));
+    $edit['resource_hints_prerender_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="prerender" href="//prerender.com" />');
   }
 
 }
