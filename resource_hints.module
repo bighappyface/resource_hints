@@ -45,6 +45,7 @@ function resource_hints_permission() {
 function resource_hints_init() {
 
   $dns_prefetch_control = variable_get('resource_hints_dns_prefetch_control', RESOURCE_HINTS_DNS_PREFETCH_ENABLED);
+  $dns_prefetch_control = check_plain($dns_prefetch_control);
   $dns_prefetch_output = variable_get("resource_hints_dns_prefetch_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
 
   if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
