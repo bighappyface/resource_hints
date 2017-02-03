@@ -10,6 +10,8 @@
  */
 function resource_hints_dns_prefetch_admin() {
 
+  $form['#validate'][] = 'resource_hints_admin_form_validate';
+
   $form['dns_prefetch'] = array(
     '#type' => 'fieldset',
     '#title' => t('DNS Prefetch'),
@@ -118,4 +120,27 @@ function resource_hints_dns_prefetch_admin() {
   );
 
   return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function resource_hints_admin_form_validate($form, &$form_state) {
+  $fields = array(
+    'resource_hints_dns_prefetch_resources',
+    'resource_hints_preconnect_resources',
+    'resource_hints_prefetch_resources',
+    'resource_hints_prerender_resources',
+  );
+  foreach ($fields as $field) {
+    $values = $form_state['values'][$field];
+    $values = explode(PHP_EOL, $values);
+    foreach ($values as $value) {
+      $value = trim($value);
+      if (strlen($value) && (drupal_strip_dangerous_protocols($value) != $value || !valid_url($value))) {
+        form_set_error($field, t('Please enter valid URLs.'));
+        break 2;
+      }
+    }
+  }
 }

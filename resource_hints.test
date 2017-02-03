@@ -98,6 +98,24 @@ class ResourceHintsWebTestCase extends DrupalWebTestCase {
     $edit['resource_hints_prerender_output'] = RESOURCE_HINTS_OUTPUT_LINK_ELEMENT;
     $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
     $this->assertRaw('<link rel="prerender" href="//prerender.com" />');
+
+    // Output with check_url().
+    variable_set('resource_hints_prerender_resources', 'javascript://prerender.com');
+    $this->drupalGet('admin/config/development/resources-hints');
+    $this->assertNoRaw('<link rel="prerender" href="javascript://prerender.com" />');
+    $this->assertRaw('<link rel="prerender" href="//prerender.com" />');
+
+    // Reject Invalid URL.
+    $edit['resource_hints_prerender_resources'] = '<bad stuff>';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="prerender" href="//prerender.com" />');
+    $this->assertRaw('Please enter valid URLs.');
+
+    // Reject Bad Protocol.
+    $edit['resource_hints_prerender_resources'] = 'javascript://prerender.com';
+    $this->drupalPost('admin/config/development/resources-hints', $edit, t('Save configuration'));
+    $this->assertRaw('<link rel="prerender" href="//prerender.com" />');
+    $this->assertRaw('Please enter valid URLs.');
   }
 
 }

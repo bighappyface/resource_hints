@@ -92,7 +92,7 @@ function resource_hints_init() {
 
   foreach ($hint_types as $rel => $variable_prefix) {
     foreach (explode(PHP_EOL, variable_get("{$variable_prefix}_resources", '')) as $value) {
-      $value = drupal_strip_dangerous_protocols(trim($value));
+      $value = check_url(trim($value));
       if ($value) {
         $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
         if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
