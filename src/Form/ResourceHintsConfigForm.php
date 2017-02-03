@@ -45,31 +45,31 @@ class ResourceHintsConfigForm extends ConfigFormBase {
 
     $form['dns_prefetch']['dns_prefetch_output'] = [
       '#type' => 'select',
-      '#title' => $this->t('Output type'),
+      '#title' => t('Output type'),
       '#options' => [
-        self::OUTPUT_LINK_HEADER => $this->t('Link Header'),
-        self::OUTPUT_LINK_ELEMENT => $this->t('Link Element'),
+        self::OUTPUT_LINK_HEADER => t('Link Header'),
+        self::OUTPUT_LINK_ELEMENT => t('Link Element'),
       ],
       '#default_value' => $config->get('dns_prefetch_output'),
-      '#description' => $this->t('Resource hints can be output as an HTTP Link header or HTML link element'),
+      '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
     ];
 
     $form['dns_prefetch']['dns_prefetch_resources'] = [
       '#type' => 'textarea',
       '#default_value' => implode(PHP_EOL, $config->get('dns_prefetch_resources')),
       '#title' => $this->t('Resources'),
-      '#description' => $this->t('The DNS resources you wish to be prefetched. Enter one resource per line.'),
+      '#description' => t('The DNS resources you wish to be prefetched. Enter one resource per line.'),
     ];
 
     $form['dns_prefetch']['dns_prefetch_control'] = [
       '#type' => 'select',
-      '#title' => $this->t('DNS Prefetch Control'),
+      '#title' => t('DNS Prefetch Control'),
       '#options' => [
-        self::DNS_PREFETCH_ENABLED => $this->t('Enabled'),
-        self::DNS_PREFETCH_DISABLED => $this->t('Disabled'),
+        self::DNS_PREFETCH_ENABLED => t('Enabled'),
+        self::DNS_PREFETCH_DISABLED => t('Disabled'),
       ],
       '#default_value' => $config->get('dns_prefetch_control'),
-      '#description' => $this->t('By default browsers will not use DNS prefetching when a page is served via HTTPS, you must explicitly enable prefetching for HTTPS. Disabling prefetching will prevent browsers using prefetching and any inline attempts to enable it will be ignored.'),
+      '#description' => t('By default browsers will not use DNS prefetching when a page is served via HTTPS, you must explicitly enable prefetching for HTTPS. Disabling prefetching will prevent browsers using prefetching and any inline attempts to enable it will be ignored.'),
     ];
 
     $form['preconnect'] = [
@@ -80,20 +80,20 @@ class ResourceHintsConfigForm extends ConfigFormBase {
 
     $form['preconnect']['preconnect_output'] = [
       '#type' => 'select',
-      '#title' => $this->t('Output type'),
+      '#title' => t('Output type'),
       '#options' => [
-        self::OUTPUT_LINK_HEADER => $this->t('Link Header'),
-        self::OUTPUT_LINK_ELEMENT => $this->t('Link Element'),
+        self::OUTPUT_LINK_HEADER => t('Link Header'),
+        self::OUTPUT_LINK_ELEMENT => t('Link Element'),
       ],
       '#default_value' => $config->get('preconnect_output'),
-      '#description' => $this->t('Resource hints can be output as an HTTP Link header or HTML link element'),
+      '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
     ];
 
     $form['preconnect']['preconnect_resources'] = [
       '#type' => 'textarea',
       '#default_value' => implode(PHP_EOL, $config->get('preconnect_resources')),
       '#title' => $this->t('Resources'),
-      '#description' => $this->t('The resources you wish to be preconnected. Enter one resource per line.'),
+      '#description' => t('The resources you wish to be preconnected. Enter one resource per line.'),
     ];
 
     $form['prefetch'] = [
@@ -104,20 +104,20 @@ class ResourceHintsConfigForm extends ConfigFormBase {
 
     $form['prefetch']['prefetch_output'] = [
       '#type' => 'select',
-      '#title' => $this->t('Output type'),
+      '#title' => t('Output type'),
       '#options' => [
-        self::OUTPUT_LINK_HEADER => $this->t('Link Header'),
-        self::OUTPUT_LINK_ELEMENT => $this->t('Link Element'),
+        self::OUTPUT_LINK_HEADER => t('Link Header'),
+        self::OUTPUT_LINK_ELEMENT => t('Link Element'),
       ],
       '#default_value' => $config->get('prefetch_output'),
-      '#description' => $this->t('Resource hints can be output as an HTTP Link header or HTML link element'),
+      '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
     ];
 
     $form['prefetch']['prefetch_resources'] = [
       '#type' => 'textarea',
       '#default_value' => implode(PHP_EOL, $config->get('prefetch_resources')),
       '#title' => $this->t('Resources'),
-      '#description' => $this->t('The resources you wish to be prefetched. Enter one resource per line.'),
+      '#description' => t('The resources you wish to be prefetched. Enter one resource per line.'),
     ];
 
     $form['prerender'] = [
@@ -128,20 +128,20 @@ class ResourceHintsConfigForm extends ConfigFormBase {
 
     $form['prerender']['prerender_output'] = [
       '#type' => 'select',
-      '#title' => $this->t('Output type'),
+      '#title' => t('Output type'),
       '#options' => [
-        self::OUTPUT_LINK_HEADER => $this->t('Link Header'),
-        self::OUTPUT_LINK_ELEMENT => $this->t('Link Element'),
+        self::OUTPUT_LINK_HEADER => t('Link Header'),
+        self::OUTPUT_LINK_ELEMENT => t('Link Element'),
       ],
       '#default_value' => $config->get('prerender_output'),
-      '#description' => $this->t('Resource hints can be output as an HTTP Link header or HTML link element'),
+      '#description' => t('Resource hints can be output as an HTTP Link header or HTML link element'),
     ];
 
     $form['prerender']['prerender_resources'] = [
       '#type' => 'textarea',
       '#default_value' => implode(PHP_EOL, $config->get('prerender_resources')),
       '#title' => $this->t('Resources'),
-      '#description' => $this->t('The resources you wish to be prerendered. Enter one resource per line.'),
+      '#description' => t('The resources you wish to be prerendered. Enter one resource per line.'),
     ];
 
     return parent::buildForm($form, $form_state);
