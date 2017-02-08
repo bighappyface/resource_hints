@@ -1,5 +1,5 @@
 resource_hints.config:
-  path: 'admin/config/development/resources-hints'
+  path: 'admin/config/development/performance/resources-hints'
   defaults:
     _form: '\Drupal\resource_hints\Form\ResourceHintsConfigForm'
     _title: 'Resource Hints'

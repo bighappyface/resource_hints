@@ -46,7 +46,7 @@ class ResourceHintsAttachmentTest extends BrowserTestBase {
   public function testResourceHints() {
     $this->drupalLogin($this->user);
     $assert = $this->assertSession();
-    $this->drupalGet('admin/config/development/resources-hints');
+    $this->drupalGet('admin/config/development/performance/resources-hints');
 
     // DNS Prefetch Header.
     $this->submitForm([

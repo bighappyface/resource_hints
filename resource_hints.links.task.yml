@@ -1,0 +1,8 @@
+resource_hints.performance:
+  title: 'Performance'
+  route_name: system.performance_settings
+  base_route: system.performance_settings
+resource_hints.config:
+  title: 'Resource Hints'
+  route_name: resource_hints.config
+  base_route: system.performance_settings
