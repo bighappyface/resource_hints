@@ -2,5 +2,6 @@ name = "Resource Hints"
 description = "Configure resource hints - https://www.w3.org/TR/resource-hints/"
 package = "Performance"
 core = "7.x"
+configure = admin/config/development/resources-hints
 
 files[] = resource_hints.test
