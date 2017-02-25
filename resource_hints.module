@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * @file
+ * Modules hooks for the resource hints module.
+ */
+
+define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', 'header');
+define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', 'element');
+define('RESOURCE_HINTS_DNS_PREFETCH_ENABLED', 'on');
+define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', 'off');
+
+/**
+ * Implements hook_menu().
+ */
+function resource_hints_menu() {
+  $items['admin/config/development/resources-hints'] = array(
+    'title' => 'Resource Hints',
+    'description' => 'Configure settings for resources hints.',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer resource hints'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('resource_hints_dns_prefetch_admin'),
+    'file' => 'resource_hints.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function resource_hints_permission() {
+  return array(
+    'administer resource hints' => array(
+      'title' => t('Administer Resource Hints'),
+      'description' => t('Configure settings for resource hints'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function resource_hints_init() {
+
+  $dns_prefetch_control = variable_get('resource_hints_dns_prefetch_control', RESOURCE_HINTS_DNS_PREFETCH_ENABLED);
+  $dns_prefetch_control = check_plain($dns_prefetch_control);
+  $dns_prefetch_output = variable_get("resource_hints_dns_prefetch_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
+
+  if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+    drupal_add_http_header('X-DNS-Prefetch-Control', $dns_prefetch_control);
+  }
+  else {
+    drupal_add_html_head(
+      array(
+        '#tag' => 'meta',
+        '#attributes' => array(
+          'http-equiv' => 'x-dns-prefetch-control',
+          'content' => $dns_prefetch_control,
+        ),
+      ),
+      __FUNCTION__
+    );
+  }
+
+  if ($dns_prefetch_control === RESOURCE_HINTS_DNS_PREFETCH_ENABLED) {
+    foreach (explode(PHP_EOL, variable_get('resource_hints_dns_prefetch_resources', '')) as $value) {
+      $value = drupal_strip_dangerous_protocols(trim($value));
+      if ($value) {
+        if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+          drupal_add_http_header('Link', "<{$value}>; rel=\"dns-prefetch\"", TRUE);
+        }
+        else {
+          drupal_add_html_head_link(
+            array(
+              'rel' => 'dns-prefetch',
+              'href' => $value,
+            ),
+            FALSE
+          );
+        }
+      }
+    }
+  }
+
+  $hint_types = array(
+    'preconnect' => 'resource_hints_preconnect',
+    'prefetch' => 'resource_hints_prefetch',
+    'prerender' => 'resource_hints_prerender',
+  );
+
+  foreach ($hint_types as $rel => $variable_prefix) {
+    foreach (explode(PHP_EOL, variable_get("{$variable_prefix}_resources", '')) as $value) {
+      $value = check_url(trim($value));
+      if ($value) {
+        $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
+        if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+          drupal_add_http_header('Link', "<{$value}>; rel=\"{$rel}\"", TRUE);
+        }
+        else {
+          drupal_add_html_head_link(
+            array(
+              'rel' => $rel,
+              'href' => $value,
+            ),
+            FALSE
+          );
+        }
+      }
+    }
+  }
+}
