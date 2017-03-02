@@ -4,4 +4,6 @@ package = "Performance"
 core = "7.x"
 configure = admin/config/development/resources-hints
 
+dependencies[] = entity
+
 files[] = resource_hints.test

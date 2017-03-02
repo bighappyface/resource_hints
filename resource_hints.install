@@ -9,18 +9,66 @@
  * Implements hook_uninstall().
  */
 function resource_hints_uninstall() {
-  $vars = array(
-    'resource_hints_dns_prefetch_output',
-    'resource_hints_dns_prefetch_control',
-    'resource_hints_dns_prefetch_resources',
-    'resource_hints_preconnect_output',
-    'resource_hints_preconnect_resources',
-    'resource_hints_prefetch_output',
-    'resource_hints_prefetch_resources',
-    'resource_hints_prerender_output',
-    'resource_hints_prerender_resources',
+
+}
+
+/**
+ * Implements hook_schema().
+ */
+function resource_hints_schema() {
+  $schema['resource_hints'] = array(
+    'description' => 'Stores information about all defined resource hints.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: Unique resource hint ID.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'output_method' => array(
+        'description' => 'The output method of this resource hint.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 10,
+      ),
+      'uri' => array(
+        'description' => 'The URI of this resource hint.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'normal',
+      ),
+      'rel' => array(
+        'description' => 'The relationship of this resource hint.',
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 15,
+      ),
+      'cors' => array(
+        'description' => 'The CORS setting of this resource hint.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 15,
+      ),
+      'request_destination' => array(
+        'description' => 'The request destination of this resource hint.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 15,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 255,
+      ),
+    ),
+    'primary key' => array('id'),
   );
-  foreach ($vars as $var) {
-    variable_del($var);
-  }
+  return $schema;
 }

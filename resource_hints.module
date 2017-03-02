@@ -7,24 +7,46 @@
 
 define('RESOURCE_HINTS_OUTPUT_LINK_HEADER', 'header');
 define('RESOURCE_HINTS_OUTPUT_LINK_ELEMENT', 'element');
-define('RESOURCE_HINTS_DNS_PREFETCH_ENABLED', 'on');
-define('RESOURCE_HINTS_DNS_PREFETCH_DISABLED', 'off');
+define('RESOURCE_HINTS_CORS_ANONYMOUS', 'anonymous');
+define('RESOURCE_HINTS_CORS_USE_CREDENTIALS', 'use-credentials');
 
 /**
- * Implements hook_menu().
- */
-function resource_hints_menu() {
-  $items['admin/config/development/resources-hints'] = array(
-    'title' => 'Resource Hints',
-    'description' => 'Configure settings for resources hints.',
-    'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('administer resource hints'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('resource_hints_dns_prefetch_admin'),
-    'file' => 'resource_hints.admin.inc',
-  );
-
-  return $items;
+ * Implements hook_init().
+*/
+function resource_hints_init() {
+  $hints = resource_hints_get_types();
+  foreach ($hints as $hint) {
+    $uri = check_url(trim($hint->uri));
+    if ($uri) {
+      if ($hint->output_method === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
+        $value = array("<{$uri}>", "rel=\"{$hint->rel}\"");
+        if (!empty($hint->request_destination)) {
+          $value[] = "as={$hint->request_destination}";
+        }
+        if (!empty($hint->cors)) {
+          $cors = 'crossorigin';
+          if ($hint->cors == RESOURCE_HINTS_CORS_USE_CREDENTIALS) {
+            $cors .= "={$hint->cors}";
+          }
+          $value[] = $cors;
+        }
+        drupal_add_http_header('Link', implode('; ', $value), TRUE);
+      }
+      else {
+        $attribs = array(
+          'rel' => $hint->rel,
+          'href' => $uri,
+        );
+        if (!empty($hint->request_destination)) {
+          $attribs['as'] = $hint->request_destination;
+        }
+        if (!empty($hint->cors)) {
+          $attribs['crossorigin'] = $hint->cors;
+        }
+        drupal_add_html_head_link($attribs, FALSE);
+      }
+    }
+  }
 }
 
 /**
@@ -40,74 +62,155 @@ function resource_hints_permission() {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_entity_info().
  */
-function resource_hints_init() {
+function resource_hints_entity_info() {
+  $return['resource_hints'] = array(
+    'label' => t('Resource Hint'),
+    'plural label' => t('Resource Hints'),
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIControllerExportable',
+    'base table' => 'resource_hints',
+    'fieldable' => FALSE,
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'label' => 'uri',
+    ),
+    'access callback' => 'resource_hints_access',
+    'module' => 'resource_hints',
+    'admin ui' => array(
+      'path' => 'admin/config/development/resources-hints',
+      // 'file' => 'resource_hints.admin.inc',
+      // OPTIONAL- See "Customize the User Interface" below if you set.
+      // 'controller class' => 'Profile2TypeUIController',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'resource_hints',
+    ),
+  );
+  return $return;
+}
 
-  $dns_prefetch_control = variable_get('resource_hints_dns_prefetch_control', RESOURCE_HINTS_DNS_PREFETCH_ENABLED);
-  $dns_prefetch_control = check_plain($dns_prefetch_control);
-  $dns_prefetch_output = variable_get("resource_hints_dns_prefetch_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
+/**
+ * Gets an array of all resource hint types, keyed by the name.
+ *
+ * @param $name
+ *   If set, the type with the given name is returned.
+ */
+function resource_hints_get_types($name = NULL) {
+  $types = entity_load_multiple_by_name('resource_hints', isset($name) ? array($name) : FALSE);
+  return isset($name) ? reset($types) : $types;
+}
 
-  if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
-    drupal_add_http_header('X-DNS-Prefetch-Control', $dns_prefetch_control);
-  }
-  else {
-    drupal_add_html_head(
-      array(
-        '#tag' => 'meta',
-        '#attributes' => array(
-          'http-equiv' => 'x-dns-prefetch-control',
-          'content' => $dns_prefetch_control,
-        ),
-      ),
-      __FUNCTION__
-    );
-  }
+/**
+ * Access callback for the entity API.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $account
+ *   (optional) The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function resource_hints_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer resource hints', $account);
+}
 
-  if ($dns_prefetch_control === RESOURCE_HINTS_DNS_PREFETCH_ENABLED) {
-    foreach (explode(PHP_EOL, variable_get('resource_hints_dns_prefetch_resources', '')) as $value) {
-      $value = drupal_strip_dangerous_protocols(trim($value));
-      if ($value) {
-        if ($dns_prefetch_output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
-          drupal_add_http_header('Link', "<{$value}>; rel=\"dns-prefetch\"", TRUE);
-        }
-        else {
-          drupal_add_html_head_link(
-            array(
-              'rel' => 'dns-prefetch',
-              'href' => $value,
-            ),
-            FALSE
-          );
-        }
-      }
-    }
-  }
+/**
+ * Generates the profile type editing form.
+ */
+function resource_hints_form($form, &$form_state, $type, $op = 'edit', $entity_type = NULL) {
 
-  $hint_types = array(
-    'preconnect' => 'resource_hints_preconnect',
-    'prefetch' => 'resource_hints_prefetch',
-    'prerender' => 'resource_hints_prerender',
+  $form['output_method'] = array(
+    '#title' => t('Output method'),
+    '#type' => 'select',
+    '#options' => array(
+      RESOURCE_HINTS_OUTPUT_LINK_HEADER => 'HTTP header',
+      RESOURCE_HINTS_OUTPUT_LINK_ELEMENT => 'Link element',
+    ),
+    '#default_value' => isset($type->output_method) ? $type->output_method : '',
+    '#description' => t('The output method of this resource hint.'),
+    '#required' => TRUE,
   );
 
-  foreach ($hint_types as $rel => $variable_prefix) {
-    foreach (explode(PHP_EOL, variable_get("{$variable_prefix}_resources", '')) as $value) {
-      $value = check_url(trim($value));
-      if ($value) {
-        $output = variable_get("{$variable_prefix}_output", RESOURCE_HINTS_OUTPUT_LINK_HEADER);
-        if ($output === RESOURCE_HINTS_OUTPUT_LINK_HEADER) {
-          drupal_add_http_header('Link', "<{$value}>; rel=\"{$rel}\"", TRUE);
-        }
-        else {
-          drupal_add_html_head_link(
-            array(
-              'rel' => $rel,
-              'href' => $value,
-            ),
-            FALSE
-          );
-        }
-      }
-    }
-  }
+  $form['uri'] = array(
+    '#title' => t('URI'),
+    '#type' => 'textfield',
+    '#default_value' => isset($type->uri) ? $type->uri : '',
+    '#description' => t('The URI of this resource hint.'),
+    '#required' => TRUE,
+    '#size' => 120,
+  );
+
+  $form['rel'] = array(
+    '#title' => t('Relationship'),
+    '#type' => 'select',
+    '#options' => drupal_map_assoc(array(
+      'dns-prefetch',
+      'preconnect',
+      'prefetch',
+      'prerender',
+      'preload',
+    )),
+    '#default_value' => isset($type->rel) ? $type->rel : '',
+    '#description' => t('The type (relationship) of this resource hint. https://w3c.github.io/resource-hints/#resource-hints'),
+    '#required' => TRUE,
+  );
+
+  $form['cors'] = array(
+    '#title' => t('CORS settings'),
+    '#type' => 'select',
+    '#options' => array(
+      '' => 'none',
+      RESOURCE_HINTS_CORS_ANONYMOUS => RESOURCE_HINTS_CORS_ANONYMOUS,
+      RESOURCE_HINTS_CORS_USE_CREDENTIALS => RESOURCE_HINTS_CORS_USE_CREDENTIALS,
+    ),
+    '#default_value' => isset($type->cors) ? $type->cors : '',
+    '#description' => t('The CORS settings ("crossorigin" attribute) of this resource hint. https://html.spec.whatwg.org/multipage/infrastructure.html#cors-settings-attributes'),
+  );
+
+  $form['request_destination'] = array(
+    '#title' => t('Request destination'),
+    '#type' => 'select',
+    '#options' => array('' => 'none')
+      + drupal_map_assoc(array(
+        'report',
+        'document',
+        'object',
+        'embed',
+        'media',
+        'font',
+        'image',
+        'script',
+        'serviceworker',
+        'sharedworker',
+        'worker',
+        'style',
+        'manifest',
+        'xslt',
+      )),
+    '#default_value' => isset($type->request_destination) ? $type->request_destination : '',
+    '#description' => t('The request destination ("as" attribute) of this resource hint. https://fetch.spec.whatwg.org/#concept-request-destination'),
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Resource Hint'),
+    '#weight' => 40,
+  );
+  return $form;
+}
+
+/**
+ * Form API submit callback for the type form.
+ */
+function resource_hints_form_submit(&$form, &$form_state) {
+  $resource_hint = entity_ui_form_submit_build_entity($form, $form_state);
+  $resource_hint->save();
+  $form_state['redirect'] = 'admin/config/development/resources-hints';
+  drupal_set_message(t('Resource hint saved successfully.'));
 }
