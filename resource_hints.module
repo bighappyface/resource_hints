@@ -13,7 +13,7 @@ use Drupal\Component\Utility\Html;
  * Implements hook_page_attachments_alter().
  */
 function resource_hints_page_attachments_alter(array &$attachments) {
-  $config = \Drupal::config('resource_hints.config');
+  $config = \Drupal::config('resource_hints.settings');
 
   $hint_types = array(
     'dns-prefetch' => 'dns_prefetch',

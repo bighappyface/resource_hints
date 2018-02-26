@@ -27,7 +27,7 @@ class ResourceHintsConfigForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'resource_hints.config',
+      'resource_hints.settings',
     ];
   }
 
@@ -35,7 +35,7 @@ class ResourceHintsConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('resource_hints.config');
+    $config = $this->config('resource_hints.settings');
 
     $form['dns_prefetch'] = [
       '#type' => 'details',
@@ -155,7 +155,7 @@ class ResourceHintsConfigForm extends ConfigFormBase {
     $preconnect_resources = explode(PHP_EOL, $form_state->getValue('preconnect_resources'));
     $prefetch_resources = explode(PHP_EOL, $form_state->getValue('prefetch_resources'));
     $prerender_resources = explode(PHP_EOL, $form_state->getValue('prerender_resources'));
-    $config = \Drupal::service('config.factory')->getEditable('resource_hints.config');
+    $config = \Drupal::service('config.factory')->getEditable('resource_hints.settings');
     $config->set('dns_prefetch_resources', $dns_prefetch_resources)
       ->set('dns_prefetch_output', $form_state->getValue('dns_prefetch_output'))
       ->set('dns_prefetch_control', $form_state->getValue('dns_prefetch_control'))

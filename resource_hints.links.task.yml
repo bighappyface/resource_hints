@@ -2,7 +2,7 @@ resource_hints.performance:
   title: 'Performance'
   route_name: system.performance_settings
   base_route: system.performance_settings
-resource_hints.config:
+resource_hints.settings:
   title: 'Resource Hints'
-  route_name: resource_hints.config
+  route_name: resource_hints.settings
   base_route: system.performance_settings

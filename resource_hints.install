@@ -10,6 +10,6 @@
   */
 function resource_hints_uninstall() {
   \Drupal::service('config.factory')
-    ->getEditable('resource_hints.config')
+    ->getEditable('resource_hints.settings')
     ->delete();
 }

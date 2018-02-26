@@ -1,4 +1,4 @@
-resource_hints.config:
+resource_hints.settings:
   type: config_object
   label: 'Resource Hints config'
   mapping:
