@@ -22,16 +22,12 @@ function resource_hints_page_attachments_alter(array &$attachments) {
     'prerender' => 'prerender',
   );
 
-  $headers = [];
   $elements = [];
 
   $dns_prefetch_control = Html::escape($config->get('dns_prefetch_control'));
   $dns_prefetch_output = $config->get('dns_prefetch_output');
 
-  if ($dns_prefetch_output == ResourceHintsConfigForm::OUTPUT_LINK_HEADER) {
-    $headers[] = ['X-DNS-Prefetch-Control', $dns_prefetch_control];
-  }
-  else {
+  if ($dns_prefetch_output != ResourceHintsConfigForm::OUTPUT_LINK_HEADER) {
     $attachments['#attached']['html_head'][] = [
       [
         '#tag' => 'meta',
@@ -53,19 +49,10 @@ function resource_hints_page_attachments_alter(array &$attachments) {
     foreach ($resources as $value) {
       $value = UrlHelper::stripDangerousProtocols(trim($value));
       if ($value) {
-        if ($output === ResourceHintsConfigForm::OUTPUT_LINK_HEADER) {
-          $headers[] = ['Link', "<{$value}>; rel=\"{$rel}\""];
-        }
-        else {
+        if ($output != ResourceHintsConfigForm::OUTPUT_LINK_HEADER) {
           $elements[] = [['rel' => $rel, 'href' => $value]];
         }
       }
-    }
-  }
-
-  if ($headers) {
-    foreach ($headers as $header) {
-      $attachments['#attached']['http_header'][] = $header;
     }
   }
 

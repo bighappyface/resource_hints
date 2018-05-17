@@ -1,0 +1,6 @@
+services:
+  resource_hints.header_output_event_subscriber:
+    class: Drupal\resource_hints\EventSubscriber\HeaderOutputEventSubscriber
+    arguments: ['@config.factory']
+    tags:
+      - {name: event_subscriber}
